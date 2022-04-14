@@ -1,0 +1,363 @@
+---
+title: "ejercicios Metodos multivariados"
+output: html_document
+date: '2022-03-28'
+---
+```{r punto 1}
+
+# Punto 1.1 Genere una muestra de tamaño 120 de la distribución normal con media 5, desviación estándar 0.85. Use solo dos números decimales (rnorm())
+
+set.seed(2005)
+library(dplyr)
+x<-round(rnorm(120,5,0.85),2)
+x
+```
+
+```{r punto 2}
+
+# Punto 1.2 Genere una muestra de tamaño 120 de la distribución binomial con parámetros 0.8 (probabilidad) y 20 (ensayos independientes) (rbinom())
+
+y<- rbinom(120,20,0.8)
+y
+```
+
+```{r punto 3}
+
+# Punto 1.3 Genere una muestra de tamaño 120 de la distribución Poisson con parámetro 10.5 (media) (rpois())
+
+z<- rpois(120,10.5)
+z
+```
+
+```{r punto 4}
+# Punto 1.4 Genere una muestra con reemplazo de tamaño 120 de una secuencia de 300 números (sample.int())
+
+R<- sample.int(300,120,replace = TRUE)
+R
+```
+
+```{r punto 5}
+# Punto 1.5 Usando la librería purrr genere una muestra de la distribución de Bernoulli de tamaño 120 y parámetro 0.75 (probabilidad) (rbernoulli()) y cambie el FALSE por (ausente) y el TRUE por (presente).
+
+library(purrr)
+rb<- rbernoulli(120,0.75)
+rb <- ifelse(rb == "TRUE", "Presente","Ausente")
+rb
+
+```
+```{r punto 6}
+
+# punto 1.6 Genere tres niveles de un factor, cada uno con 40 datos y etiquételos con (S) para identificar la planta (sana), (PA) para las plantas parcialmente afectadas y (MA) para las muy afectadas. Use la función (gl()).
+
+
+enf<- gl(3,40,length = 120,labels = c("S","PA", "MA"))
+enf
+```
+```{r punto 7}
+# Punto 1.7 Genere dos niveles de un factor usando la distribución uniforme con parámetros 0 y 1.2, ponga para cada dato a generar de los 120 la condición de si el número generado es menor a 0.5, los etiquetamos como (FO) para asociarlo a fertilización orgánica, de lo contrario, use (FI) para asociarlo a fertilización inorgánica. Use la función (runif()). Si lo desea use la función (ifelse()) o (if else()) para condicionar.
+
+
+Fert<- runif(120,0,1.2)
+Fert<-(ifelse(Fert<0.5,"FO","FI"))
+Fert
+```
+
+```{r punto 8}
+# Punto 1.8 Construya un marco de datos (data.frame()) o una tableta (tibble()) con todas las variables antes generadas y asigne respectivamente los nombres de variable: Biomasa(gramos), Flores.r (conteo de flores en tres ramas), Flores.d (conteo de flores desprendidas), Hojas.d (conteo de hojas desprendidas), Plaga , Estatus y Fertilización. Revise del objeto creado, su dimensión (dim()), su estructura con (str()) o (glimpse()), la clase (class()), los nombres en las variables (names()), la presencia de faltantes (is.na())
+
+library(dplyr)
+df1=data.frame(x,y,z,R,rb,enf,Fert)
+df2<-rename(df1,Biomasa_gramos=x,Flores.r=y,Flores.d=z,Hojas.d=R,Plaga=rb,Estatus=enf,Fertilizacion=Fert)
+df2
+
+
+dim(df1)
+str(df1)
+class(df1)
+names(df1)
+table(is.na(df1))
+length(df1)
+```
+```{r punto 9}
+# Punto 1.9 Usando la información del punto anterior, Seleccione un subconjunto (el 75 % de las filas de todas las columnas) de todo el marco de datos o tableta. Use la función (samplen()) y asigne un valor faltante NA a dos variables cuantitativas cualesquiera del conjunto de datos muestreado. LLame tib.c al data.frame completo y tic.i al pequeño. Con estos dos data.frames resuelva los puntos que se presentas en los ejercicios posteriores.
+
+tib.c=df2 #tabla completa
+tib.c
+tib.i=tib.c[sample(nrow(tib.c),90),]
+tib.i[30,1]=NA 
+tib.i[80,3]=NA
+tib.i
+
+```
+```{r punto 10.1}
+# Punto 10.1 Seleccione una variable cualquiera con (select()) para tib.c
+
+library(dplyr)
+tib.c |>  select(Biomasa_gramos)
+```
+```{r punto 10.2}
+
+# Punto 10.2 Seleccione desde la tercera a la sexta variable con (select(:)) para tib.c
+
+dplyr::select(tib.c,c(3:6))
+```
+```{r punto 10.3}
+
+# Punto 10.3 No seleccione desde la tercera a la sexta variable con (select(!(:))) para tib.c
+
+dplyr::select(tib.c,!c(3:6))
+
+```
+```{r punto 10.4}
+
+# Punto 10.4 Seleccione las que no finalizan con .d usando (select(!ends with()))
+
+library(dplyr)
+tib.c |>  select(!ends_with(".d"))
+```
+```{r punto 10.5}
+
+# Punto 10.5 Seleccione las que comienzan con Fl usando (select(starts with()))
+
+tib.c |>  select(starts_with("Fl"))
+
+```
+```{r punto 10.6}
+
+# Punto 10.6 Seleccione las que comienzan con F y terminan con .d usando (select(starts with()&ends with()))
+
+tib.c |>  select(starts_with("F")& ends_with(".d"))
+
+```
+```{r punto 10.7}
+# Punto 10.7 Seleccione una variable cualquiera con (select()) para tib:c y agrúpela por Estatus usando ( group by() )
+
+var_Estatus<-tib.c |>  select(1) |> group_by(tib.c$Estatus)
+var_Estatus
+```
+```{r punto 10.8}
+
+# Punto 10.8 Guarde el resultado previo en la variable var estatus y ordene de mayor a menor por la misma variable anterior usando (arrange(desc(), .by group = TRUE)) para tib.c
+
+
+var_Estatus |>  arrange(desc(Biomasa_gramos),.by_group = T)
+
+```
+
+```{r punto 10.9}
+
+# Punto 10.9 Filtre los datos que comienzan con Flores para el estatus muy afectadas (Filter(,) )
+
+tib.c |> select(starts_with("Flores")) |> filter(tib.c$Estatus=="MA")
+
+```
+```{r punto 10.10}
+
+# Punto 10.10 . Filtre los datos para cuando la biomasa es superior a 5 gramos
+
+tib.c |>  filter(Biomasa_gramos>5)
+
+```
+```{r punto 10.11}
+
+# Punto 10.11 Filtre los datos para tener solo fertilización se tienen plantas parcialmente afectadas y fueron tratadas con fertilización orgánica
+
+tib.c |>  filter(tib.c$Fertilizacion=="FO",tib.c$Estatus=="PA")
+
+```
+```{r PUNTO 10.12}
+# Punto 10.12 Filtre los datos para tener solo fertilización se tienen plantas parcialmente afectadas o fueron tratadas con fertilización inorgánica
+
+tib.c |>  filter(tib.c$Fertilizacion=="FI"|tib.c$Estatus=="PA")
+```
+```{r PUNTO 10.13}
+# Punto 10.13 Filtre los datos de Flores desprendidas por presencia o ausencia de plaga para cuando el número de flores desprendidas es mayor a su mediana
+
+tib.c |> group_by(Plaga) |>  select(Flores.d) |>  filter(Flores.d>median(Flores.d))
+
+median(tib.c$Flores.d)
+```
+
+```{r Punto 10.14}
+# Punto 10.14 Filtre los datos de una de las variables con datos faltantes por presencia o ausencia de plaga para cuando el valor de la variable con faltante es mayor a su mediana. Compare los resultados en los dos conjuntos de datos (completo o muestreado). Si encuentra diferencias en la mediana use median (, na.rm= TRUE)
+
+tib.c |>  group_by(tib.c$Plaga) |>  select(Biomasa_gramos) |>  filter(Biomasa_gramos>median(Biomasa_gramos))    
+tib.i |>  group_by(tib.i$Plaga) |>  select(Biomasa_gramos) |>  filter(Biomasa_gramos>median(Biomasa_gramos, na.rm = T))
+median(tib.c$Biomasa_gramos)
+median(tib.i$Biomasa_gramos,na.rm =T)
+
+```
+
+```{r punto 10.15}
+# Punto 10.15 Seleccione dos variables cuantitativas y asígnelas a un vector con c(,) y nómbrelo con v1. Ponga en otro vector dos valores numéricos que sirvan de condición a cada variable, por ejemplo, el cuartil inferior para una y el cuartil superior para la otra y ll ́amelo v2. Usando ahora pipes, llame el data.frame completo y filtre usando el operador punto para seleccionar aquellos datos que superan respectivamente cada variable el valor de la condición. Use ( v1 = c(); v2 = c();tib.c % > %filter(.data[[v1[[1]] > v2[[1]], .data[[v1[[2]] > v2[[2]]))
+
+v1=c("Flores.d","Biomasa_gramos")
+quantile(tib.c$Flores.d)
+quantile(tib.c$Biomasa_gramos)
+v2=c(8,5.49)
+v1 = c("Flores.d","Biomasa_gramos"); v2 = c(8,5.49);tib.c %>% filter( .data[[v1[[1]]]]  > v2[[1]],
+         .data[[v1[[2]]]]  > v2[[2]])
+
+ 
+```
+
+```{r punto 10.16}
+# Punto 10.16 Cree un data frame o tableta con todas las variables cuantitativas continúas estandarizadas con el (score z) y las discretas con la estandarización minimax y llámelo tib.e. Use (mutate())
+
+library(dplyr)
+
+#variable continua biomasa z_score estandarizada
+
+tib.e_stand<-tib.c |> mutate_at(c("Biomasa_gramos"),~(scale(.) %>% as.vector) )
+
+
+#varibles discretas  min_max (flores-hojas)
+
+min_max_norm <- function(x) {
+    (x - min(x)) / (max(x) - min(x))
+}
+
+tib.e_norm<- as.data.frame(lapply(tib.c[2:4],min_max_norm))
+
+tib.e<-mutate(tib.e_stand,tib.e_norm)
+
+tib.e
+```
+
+```{r punto 10.17}
+# Punto 10.17 Cree una nueva variable para tib.e donde divida el número de flores en las ramas con el número de flores desprendidas.
+
+tib.e<- mutate(tib.e,"flores/divididas"=Flores.r/Flores.d)
+tib.e
+```
+
+```{r punto 10.18}
+# Punto 10.18 Seleccione solo la variable del cociente previo agrupada por plaga. Cree una nueva variable que imprima el rango mínimo en cada grupo. Llame a la variable rangomin
+
+rangomin <- tib.e |> 
+  group_by(Plaga) |>
+  select(`flores/divididas`) |>
+  summarise(min_range = min(`flores/divididas`))
+rangomin
+```
+
+```{r punto 10.19}
+
+# Punto 10.19 Renombre las variables asociadas a las flores a su gusto. Use (rename())
+
+tib.e<- rename(tib.e, flores.ramas=Flores.r,flores.desprendidas=Flores.d)
+tib.e
+
+```
+
+```{r punto 10.20}
+
+# Punto 10.20 Pase a mayúsculas todos los nombres de las variables en cualquier tibble.
+
+tib.e <- select_all(tib.e, toupper); names(tib.e)
+tib.e
+
+```
+
+```{r punto 10.21}
+# Punto 10.21 Seleccione la variable biomasa de la tableta con faltantes y con summarise() obtenga la media y el número de datos de esta variable.
+
+# excluyendo los datos faltantes para poder dar el estadístico
+
+tib.i |> select(Biomasa_gramos)|> summarise(mean= mean(tib.i$Biomasa_gramos, na.rm = T), n=n())
+
+```
+
+```{r punto 10.22}
+# Punto 10.22 Seleccione la variable biomasa de la tableta con faltantes y con summarise() obtenga la media y el n ́umero de datos por tipo de fertilización.
+
+# QUITANDO LOS FALTANTES LA MEDIA SE PUEDE CALCULAR CUANDO LOS DEJO LA MEDIA QUEDA NA
+
+tib.i |> 
+  group_by(Fertilizacion) |> #select(Biomasa_gramos)|> 
+  summarise(mean(Biomasa_gramos, na.rm = T), n=n())
+```
+
+```{r punto 10.23}
+# Punto 10.23 Seleccione la variable biomasa de la tableta con faltantes y con summarise() obtenga los cuantiles 0.10,0.20,0.30,0.40 y 0.50 por tipo de fertilización
+
+tib.i |> 
+  group_by(Fertilizacion) |>  
+  summarise(quantile(Biomasa_gramos, na.rm = T, prob=c(0.10,0.20,0.30,0.4,0.5, group=NULL)))
+
+
+```
+
+```{r Punto 10.24}
+# Punto 10.24 Seleccione la variable biomasa de la tableta con faltantes y con summarise() obtenga la media, mediana, máximo, mínimo, desviación típica, desviación media, media truncada y varianza por tipo de fertilización y plaga.
+
+tib.i |> 
+  group_by(Fertilizacion,Plaga) |> 
+  summarise(mean(Biomasa_gramos),median(Biomasa_gramos),min(Biomasa_gramos),max(Biomasa_gramos),sd(Biomasa_gramos),var(Biomasa_gramos),mean(Biomasa_gramos, trim=0.10), mad(Biomasa_gramos))
+
+
+```
+
+```{r punto 10.25} 
+# Punto 10.25 Seleccione la variable biomasa de la tableta con faltantes y con summarise() obtenga la media, mediana, máximo, mínimo, desviación típica, desviación media, media truncada y varianza por tipo de fertilización y plaga filtrando por plantas sanas.
+
+#filtré por plantas afectadas "PA" y no por Sanas para poder incluir el dato faltante 
+
+library(dplyr)
+tib.i |> 
+  group_by(Fertilizacion,Plaga) |> filter(Estatus=="PA") |> 
+  summarise(mean(Biomasa_gramos),median(Biomasa_gramos),min(Biomasa_gramos),max(Biomasa_gramos),sd(Biomasa_gramos),var(Biomasa_gramos),mean(Biomasa_gramos, trim=0.10), mad(Biomasa_gramos))
+
+```
+
+```{r punto 10.26}
+# Punto 10.26 Con la tableta con faltantes use la función dropna() para sacar los faltantes y compare las estadísticas obtenidas en el ítem anterior con y sin faltantes
+
+
+tib.i_NA= tidyr::drop_na(data = tib.i)
+
+tib.i_NA |> 
+  group_by(Fertilizacion,Plaga) |> filter(Estatus=="PA") |> 
+  summarise(mean(Biomasa_gramos),median(Biomasa_gramos),min(Biomasa_gramos),max(Biomasa_gramos),sd(Biomasa_gramos),var(Biomasa_gramos),mean(Biomasa_gramos, trim=0.10), mad(Biomasa_gramos))
+
+# las estadísticas con datos faltantes no se me calcularon, cuando uso la función drop_na quita los faltantes y se calculas las estadísticas
+
+```
+
+```{r punto 10.27}
+# Punto 10.27 Filtre los datos seleccionando solo las plantas afectadas o muy afectadas. Use el operador %in %
+
+tib.i%>%
+  filter(tib.i$Estatus%in%c("PA","MA"))
+
+```
+
+```{r punto 10.28}
+
+# Punto 10.28 Seleccione la tibble con faltantes y use complete.cases(.) para dejar por fuera los faltantes
+
+tib.i[complete.cases(tib.i), ]
+
+```
+
+```{r punto 10.29}
+# Punto 10.29 Elimine de cualquier tibble las columnas asociadas al conteo de flores
+
+tib.c |> select(-Flores.r,-Flores.d)
+```
+
+```{r punto 10.30}
+# Punto 10.30 Seleccione de cualquier tibble las avriables que contengan la d. Use select(contains()) Reordene una tableta usando select(,everything()) colocando primero los conteos de flores
+
+
+tib.i |> select(contains(".d"))
+
+tib.c |> 
+  select(contains("Flores"),everything(tib.c))
+
+
+
+
+```
+
+
